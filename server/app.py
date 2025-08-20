@@ -18,8 +18,8 @@ from utils.preprocess import preprocess_image
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), '..', 'data', 'uploads')
-app.config['CLOTHING_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'clothing_images') 
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'uploads')
+app.config['CLOTHING_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'clothing_images')
 app.config['CLIENT_FOLDER'] = '../client'
 
 # Load environment variables from .env file
@@ -173,7 +173,9 @@ def feedback():
 
 @app.route('/uploads/<path:filename>')
 def serve_uploaded_file(filename):
-    return send_from_directory(os.path.dirname(app.config['UPLOAD_FOLDER']), filename)
+    upload_dir = app.config['UPLOAD_FOLDER'] 
+    print(f"Serving file from: {upload_dir}/{filename}")
+    return send_from_directory(upload_dir, filename)
 
 @app.route('/clothing_images/<path:filename>')
 def serve_clothing_image(filename):
