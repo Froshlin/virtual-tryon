@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), '..', 'data', 'uploads')
-app.config['CLOTHING_FOLDER'] = 'clothing_images'
+app.config['CLOTHING_FOLDER'] = '../clothing_images'
 app.config['CLIENT_FOLDER'] = '../client'
 
 # Load environment variables from .env file
