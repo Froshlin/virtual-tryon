@@ -1,6 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Adjust sys.path to include the server directory and its parent
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))  # Add current directory (server/)
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # Add root directory
 
 from flask import Flask, request, jsonify, send_from_directory, Response
 from werkzeug.utils import secure_filename
