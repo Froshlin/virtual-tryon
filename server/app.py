@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'data/uploads'
-app.config['CLOTHING_FOLDER'] = 'data/clothing_images'
+app.config['CLOTHING_FOLDER'] = 'clothing_images' 
 app.config['CLIENT_FOLDER'] = '../client'
 
 # Load environment variables from .env file
@@ -24,7 +24,7 @@ load_dotenv()
 # FASHN API configuration
 FASHN_API_BASE = "https://api.fashn.ai/v1"
 FASHN_API_KEY = os.getenv('FASHN_API_KEY')
-assert FASHN_API_KEY, "FASHN_API_KEY not found in environment variables. please check your .env file."
+assert FASHN_API_KEY, "FASHN_API_KEY not found in environment variables. Please check your .env file."
 
 def encode_image_to_base64(image_data):
     return f"data:image/png;base64,{base64.b64encode(image_data).decode('utf-8')}"
@@ -57,6 +57,7 @@ def try_on():
 
     filename = secure_filename(customer_image.filename)
     customer_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure directory exists
     customer_image.save(customer_path)
     print(f"Saved customer image to: {customer_path}")
 
@@ -69,7 +70,7 @@ def try_on():
         {'id': '1', 'name': 'Ankara Top', 'imageUrl': '/clothing_images/clothing_1.png', 'type': 'full'},
         {'id': '2', 'name': 'T-Shirt', 'imageUrl': '/clothing_images/clothing_2.png', 'type': 'upper'},
         {'id': '3', 'name': 'Formal Blazer', 'imageUrl': '/clothing_images/clothing_3.png', 'type': 'upper'},
-        {'id': '4', 'name': 'Short gown', 'imageUrl': '/clothing_images/clothing_4.png', 'type': 'upper'},
+        {'id': '4', 'name': 'Short Gown', 'imageUrl': '/clothing_images/clothing_4.png', 'type': 'upper'},
     ]
     clothing_type = next(item['type'] for item in clothing_items if item['id'] == clothing_id)
 
@@ -138,6 +139,7 @@ def try_on():
                                 result_image = Image.open(BytesIO(result_image_data))
                                 result_filename = f'result_{uuid.uuid4()}.png'
                                 result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
+                                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure directory exists
                                 result_image.save(result_path)
                                 yield f"data: {json.dumps({'resultImage': f'/uploads/{result_filename}', 'status': 'Complete'})}\n\n"
                             else:
@@ -181,4 +183,4 @@ def serve_clothing_image(filename):
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['CLOTHING_FOLDER'], exist_ok=True)
-    # app.run(debug=True)
+    # app.run(debug=True)  # Commented out for Render deployment
