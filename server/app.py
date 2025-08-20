@@ -1,8 +1,7 @@
 import sys
 import os
-# Adjust sys.path to include the server directory and its parent
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))  # Add current directory (server/)
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # Add root directory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))  # server/
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # root
 
 from flask import Flask, request, jsonify, send_from_directory, Response
 from werkzeug.utils import secure_filename
@@ -19,7 +18,7 @@ from utils.preprocess import preprocess_image
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'data/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), '..', 'data', 'uploads')
 app.config['CLOTHING_FOLDER'] = 'clothing_images'
 app.config['CLIENT_FOLDER'] = '../client'
 
@@ -62,7 +61,7 @@ def try_on():
 
     filename = secure_filename(customer_image.filename)
     customer_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(os.path.dirname(customer_path), exist_ok=True)
     customer_image.save(customer_path)
     print(f"Saved customer image to: {customer_path}")
 
@@ -138,8 +137,9 @@ def try_on():
                                 result_image = Image.open(BytesIO(result_image_data))
                                 result_filename = f'result_{uuid.uuid4()}.png'
                                 result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
-                                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                                os.makedirs(os.path.dirname(result_path), exist_ok=True)
                                 result_image.save(result_path)
+                                print(f"Result saved to: {result_path}")
                                 yield f"data: {json.dumps({'resultImage': f'/uploads/{result_filename}', 'status': 'Complete'})}\n\n"
                             else:
                                 yield f"data: {json.dumps({'error': f'Failed to fetch result image: {response.status_code}', 'status': 'Failed'})}\n\n"
@@ -173,7 +173,7 @@ def feedback():
 
 @app.route('/uploads/<path:filename>')
 def serve_uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(os.path.dirname(app.config['UPLOAD_FOLDER']), filename)
 
 @app.route('/clothing_images/<path:filename>')
 def serve_clothing_image(filename):
