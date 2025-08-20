@@ -1,6 +1,9 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from flask import Flask, request, jsonify, send_from_directory, Response
 from werkzeug.utils import secure_filename
-import os
 import cv2
 import uuid
 import time
@@ -15,7 +18,7 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'data/uploads'
-app.config['CLOTHING_FOLDER'] = 'clothing_images' 
+app.config['CLOTHING_FOLDER'] = 'clothing_images'
 app.config['CLIENT_FOLDER'] = '../client'
 
 # Load environment variables from .env file
@@ -57,7 +60,7 @@ def try_on():
 
     filename = secure_filename(customer_image.filename)
     customer_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure directory exists
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     customer_image.save(customer_path)
     print(f"Saved customer image to: {customer_path}")
 
@@ -76,22 +79,18 @@ def try_on():
 
     def generate():
         try:
-            # Simulate initial progress
             for i in range(10, 40, 10):
                 time.sleep(0.5)
                 yield f"data: {json.dumps({'progress': i})}\n\n"
 
-            # Preprocess images
             customer_img = preprocess_image(customer_path, is_clothing=False)
             _, customer_img_data = cv2.imencode('.png', customer_img)
             clothing_img = preprocess_image(clothing_path, is_clothing=True)
             _, clothing_img_data = cv2.imencode('.png', clothing_img)
 
-            # Verify image data
             print(f"Customer image data length: {len(customer_img_data)} bytes")
             print(f"Clothing image data length: {len(clothing_img_data)} bytes")
 
-            # Prepare FASHN API request
             headers = {"Authorization": f"Bearer {FASHN_API_KEY}", "Content-Type": "application/json"}
             model_base64 = encode_image_to_base64(customer_img_data)
             garment_base64 = encode_image_to_base64(clothing_img_data)
@@ -104,7 +103,6 @@ def try_on():
             }
             print(f"Request data: model_image length: {len(model_base64)} bytes, garment_image length: {len(garment_base64)} bytes")
 
-            # POST to /run
             run_response = requests.post(f"{FASHN_API_BASE}/run", json=input_data, headers=headers, timeout=30)
             if run_response.status_code != 200:
                 error_msg = run_response.json().get('error', f'API error: {run_response.status_code}')
@@ -116,8 +114,7 @@ def try_on():
                 return
             print(f"Received task ID: {task_id}")
 
-            # Poll /status/<ID>
-            max_polls = 40  # ~80 seconds at 2s interval
+            max_polls = 40
             poll_interval = 2
             for attempt in range(max_polls):
                 time.sleep(poll_interval)
@@ -139,7 +136,7 @@ def try_on():
                                 result_image = Image.open(BytesIO(result_image_data))
                                 result_filename = f'result_{uuid.uuid4()}.png'
                                 result_path = os.path.join(app.config['UPLOAD_FOLDER'], result_filename)
-                                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Ensure directory exists
+                                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
                                 result_image.save(result_path)
                                 yield f"data: {json.dumps({'resultImage': f'/uploads/{result_filename}', 'status': 'Complete'})}\n\n"
                             else:
@@ -183,4 +180,4 @@ def serve_clothing_image(filename):
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['CLOTHING_FOLDER'], exist_ok=True)
-    # app.run(debug=True)  # Commented out for Render deployment
+    # app.run(debug=True)
