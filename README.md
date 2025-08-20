@@ -332,5 +332,3 @@ Please ensure your code follows the existing style and includes appropriate docu
 License :scroll:
 
 This project is licensed under the MIT License. See the LICENSE file for details.
-
-(Note: Create a LICENSE file with MIT License text if not already present. You can generate one on GitHub when creating the repository.)
