@@ -45,7 +45,7 @@ def serve_static(path):
 def get_clothing():
     clothing_items = [
         {'id': '1', 'name': 'Ankara Dress', 'imageUrl': '/clothing_images/clothing_1.png', 'type': 'full'},
-        {'id': '2', 'name': 'Short Sleeve Ankara', 'imageUrl': '/clothing_images/clothing_2.png', 'type': 'upper'},
+        {'id': '2', 'name': 'T-Shirt', 'imageUrl': '/clothing_images/clothing_2.png', 'type': 'upper'},
         {'id': '3', 'name': 'Formal Blazer', 'imageUrl': '/clothing_images/clothing_3.png', 'type': 'upper'},
         {'id': '4', 'name': 'Short Gown', 'imageUrl': '/clothing_images/clothing_4.png', 'type': 'upper'},
     ]
